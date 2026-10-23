@@ -101,7 +101,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
   const filteredSuggestions = sampleSuggestions.slice(0, filters.query.trim() ? 8 : 5);
 
   return (
-    <div className="data-hero relative bg-gradient-to-br from-[#07152f] via-[#123e82] to-[#342477] text-white pt-12 pb-16 px-4 sm:px-6 overflow-hidden">
+    <div className="data-hero relative z-30 bg-gradient-to-br from-[#07152f] via-[#123e82] to-[#342477] text-white pt-12 pb-16 px-4 sm:px-6 overflow-visible">
       {/* Subtle background decorative shapes */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
         <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-blue-300 blur-3xl" />
@@ -221,7 +221,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
 
           {/* Autocomplete / Suggestions Dropdown */}
           {showSuggestions && (
-            <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-2xl border border-slate-200 z-30 overflow-hidden text-slate-800 animate-in fade-in-50 duration-100">
+            <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-2xl border border-slate-200 z-[100] overflow-hidden text-slate-800 animate-in fade-in-50 duration-100">
               <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
                 <span>{filters.query ? '検索候補' : '検索キーワードの例'}</span>
                 <span className="text-[11px] text-slate-400">クリックで直接検索</span>

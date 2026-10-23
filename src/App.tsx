@@ -369,7 +369,7 @@ export default function App() {
       />
 
       {/* 3. Main Results Section */}
-      <main className="flex-1" ref={resultsRef}>
+      <main className="relative z-0 flex-1" ref={resultsRef}>
         <SearchResults
           teachers={filteredTeachers}
           schools={filteredSchools}
