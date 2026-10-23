@@ -1,1 +1,55 @@
 @import "tailwindcss";
+
+:root {
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+html { scroll-behavior: smooth; }
+body { margin: 0; background: #f8fafc; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 3px solid rgb(34 211 238 / .65);
+  outline-offset: 3px;
+}
+
+.data-grid {
+  opacity: .18;
+  background-image:
+    linear-gradient(rgb(125 211 252 / .18) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(125 211 252 / .18) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: linear-gradient(to bottom, black, transparent 86%);
+  animation: grid-drift 18s linear infinite;
+}
+
+.data-orbit {
+  position: absolute;
+  pointer-events: none;
+  border: 1px solid rgb(103 232 249 / .22);
+  border-radius: 9999px;
+}
+.data-orbit-one { width: 34rem; height: 34rem; left: -18rem; top: -12rem; animation: orbit-spin 28s linear infinite; }
+.data-orbit-two { width: 28rem; height: 28rem; right: -13rem; bottom: -18rem; animation: orbit-spin 22s linear infinite reverse; }
+.data-orbit span {
+  position: absolute;
+  width: .7rem;
+  height: .7rem;
+  left: 50%;
+  top: -.35rem;
+  border-radius: 9999px;
+  background: #67e8f9;
+  box-shadow: 0 0 24px 8px rgb(34 211 238 / .45);
+}
+
+@keyframes grid-drift { to { background-position: 54px 54px; } }
+@keyframes orbit-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

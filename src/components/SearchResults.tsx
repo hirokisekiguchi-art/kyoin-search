@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { TeacherCandidate, School, SearchFilterState } from '../types';
 import { TeacherCard } from './TeacherCard';
 import { SchoolCard } from './SchoolCard';
-import { User, Building2, SearchX, RotateCcw, Filter } from 'lucide-react';
+import { User, Building2, SearchX, RotateCcw, ChevronRight, LoaderCircle } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface SearchResultsProps {
   teachers: TeacherCandidate[];
@@ -23,11 +24,18 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   onSelectSchoolById,
   onSelectSchool,
 }) => {
-  const RESULT_LIMIT = 100;
+  const PAGE_SIZE = 16;
+  const [teacherLimit, setTeacherLimit] = useState(PAGE_SIZE);
+  const [schoolLimit, setSchoolLimit] = useState(PAGE_SIZE);
   const showTeachers = filters.searchType === 'all' || filters.searchType === 'teacher';
   const showSchools = filters.searchType === 'all' || filters.searchType === 'school';
-  const visibleTeachers = teachers.slice(0, RESULT_LIMIT);
-  const visibleSchools = schools.slice(0, RESULT_LIMIT);
+  const visibleTeachers = teachers.slice(0, teacherLimit);
+  const visibleSchools = schools.slice(0, schoolLimit);
+
+  useEffect(() => {
+    setTeacherLimit(PAGE_SIZE);
+    setSchoolLimit(PAGE_SIZE);
+  }, [filters]);
 
   const totalResults = (showTeachers ? teachers.length : 0) + (showSchools ? schools.length : 0);
 
@@ -61,6 +69,13 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
 
   return (
     <section className="py-8 px-4 sm:px-6 max-w-6xl mx-auto" aria-label="検索結果">
+      <nav aria-label="パンくず" className="mb-3 flex items-center gap-1 text-[11px] font-medium text-slate-500">
+        <span>教員サーチ</span>
+        <ChevronRight className="w-3 h-3" />
+        <span>{filters.prefecture || '南関東'}</span>
+        <ChevronRight className="w-3 h-3" />
+        <span className="text-blue-700">{filters.query ? '検索結果' : '人事アーカイブ'}</span>
+      </nav>
       {/* Search Result Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-3">
         <div>
@@ -198,19 +213,25 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {visibleTeachers.map((teacher) => (
-                  <TeacherCard
+                {visibleTeachers.map((teacher, index) => (
+                  <motion.div key={teacher.id} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.28, delay: Math.min(index % PAGE_SIZE, 6) * 0.025 }}>
+                    <TeacherCard
                     key={teacher.id}
                     teacher={teacher}
                     onSelect={onSelectTeacher}
                     onSelectSchool={onSelectSchoolById}
-                  />
+                    />
+                  </motion.div>
                 ))}
               </div>
-              {teachers.length > RESULT_LIMIT && (
-                <p className="mt-4 text-center text-xs text-slate-500">
-                  {teachers.length.toLocaleString('ja-JP')}件中、先頭{RESULT_LIMIT}件を表示中です。氏名・学校名・地域で絞り込んでください。
-                </p>
+              {teachers.length > teacherLimit && (
+                <div className="mt-6 text-center">
+                  <button onClick={() => setTeacherLimit((value) => value + PAGE_SIZE)} className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-5 py-2.5 text-sm font-semibold text-blue-700 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-400 hover:shadow-md">
+                    <LoaderCircle className="w-4 h-4" />
+                    さらに{Math.min(PAGE_SIZE, teachers.length - teacherLimit)}件表示
+                  </button>
+                  <p className="mt-2 text-[11px] text-slate-400">{teachers.length.toLocaleString('ja-JP')}件中 {visibleTeachers.length.toLocaleString('ja-JP')}件を表示</p>
+                </div>
               )}
             </div>
           )}
@@ -241,18 +262,24 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {visibleSchools.map((school) => (
-                  <SchoolCard
+                {visibleSchools.map((school, index) => (
+                  <motion.div key={school.id} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.28, delay: Math.min(index % PAGE_SIZE, 6) * 0.025 }}>
+                    <SchoolCard
                     key={school.id}
                     school={school}
                     onSelect={onSelectSchool}
-                  />
+                    />
+                  </motion.div>
                 ))}
               </div>
-              {schools.length > RESULT_LIMIT && (
-                <p className="mt-4 text-center text-xs text-slate-500">
-                  {schools.length.toLocaleString('ja-JP')}件中、先頭{RESULT_LIMIT}件を表示中です。学校名・地域・校種で絞り込んでください。
-                </p>
+              {schools.length > schoolLimit && (
+                <div className="mt-6 text-center">
+                  <button onClick={() => setSchoolLimit((value) => value + PAGE_SIZE)} className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-5 py-2.5 text-sm font-semibold text-blue-700 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-400 hover:shadow-md">
+                    <LoaderCircle className="w-4 h-4" />
+                    さらに{Math.min(PAGE_SIZE, schools.length - schoolLimit)}件表示
+                  </button>
+                  <p className="mt-2 text-[11px] text-slate-400">{schools.length.toLocaleString('ja-JP')}件中 {visibleSchools.length.toLocaleString('ja-JP')}件を表示</p>
+                </div>
               )}
             </div>
           )}

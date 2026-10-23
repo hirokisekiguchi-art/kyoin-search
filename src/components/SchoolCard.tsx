@@ -14,7 +14,7 @@ export const SchoolCard: React.FC<SchoolCardProps> = ({ school, onSelect }) => {
   const mapsUrl = school.googleMapsUrl || getSchoolGoogleMapsUrl(school);
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200/90 hover:border-blue-400 hover:shadow-md transition-all p-5 flex flex-col justify-between group">
+    <div className="h-full bg-white rounded-xl border border-slate-200/90 hover:border-blue-400 hover:-translate-y-0.5 hover:shadow-lg transition-all p-5 flex flex-col justify-between group">
       <div>
         {/* Meta badges */}
         <div className="flex items-center justify-between gap-2 mb-2 text-xs">
@@ -40,9 +40,9 @@ export const SchoolCard: React.FC<SchoolCardProps> = ({ school, onSelect }) => {
 
         {/* School Name */}
         <div className="mb-2">
-          <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-700 transition-colors">
+          <button onClick={() => onSelect(school)} className="text-left text-xl font-bold text-slate-900 decoration-2 underline-offset-4 group-hover:text-blue-700 group-hover:underline transition-colors">
             {school.name}
-          </h3>
+          </button>
           {school.formerNames && school.formerNames.length > 0 && (
             <div className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-1">
               <History className="w-3 h-3 text-slate-400" />
@@ -91,7 +91,7 @@ export const SchoolCard: React.FC<SchoolCardProps> = ({ school, onSelect }) => {
           title="Googleマップでこの学校の口コミ・評価を確認"
         >
           <MessageSquare className="w-3 h-3 text-slate-400 group-hover:text-blue-600" />
-          <span>Googleマップ口コミ</span>
+          <span>Googleマップで口コミを見る</span>
           <ExternalLink className="w-2.5 h-2.5 opacity-60" />
         </a>
 

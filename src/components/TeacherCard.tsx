@@ -17,7 +17,7 @@ export const TeacherCard: React.FC<TeacherCardProps> = ({
   const isVerified = teacher.verificationStatus === '確認済み';
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200/90 hover:border-blue-400 hover:shadow-md transition-all p-5 flex flex-col justify-between group">
+    <div className="h-full bg-white rounded-xl border border-slate-200/90 hover:border-blue-400 hover:-translate-y-0.5 hover:shadow-lg transition-all p-5 flex flex-col justify-between group">
       <div>
         {/* Top Badges / Meta */}
         <div className="flex items-center justify-between gap-2 mb-2 text-xs">
@@ -40,9 +40,9 @@ export const TeacherCard: React.FC<TeacherCardProps> = ({
             </div>
           )}
           <div className="flex items-baseline gap-2.5 flex-wrap">
-            <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-700 transition-colors">
+            <button onClick={() => onSelect(teacher)} className="text-left text-xl font-bold text-slate-900 decoration-2 underline-offset-4 group-hover:text-blue-700 group-hover:underline transition-colors">
               {teacher.name}
-            </h3>
+            </button>
             <span className="text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200/50">
               {teacher.currentPosition}
             </span>

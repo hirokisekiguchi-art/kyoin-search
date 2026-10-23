@@ -12,6 +12,7 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface HeroSearchProps {
   filters: SearchFilterState;
@@ -97,35 +98,38 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
     filters.eventType,
   ].filter(Boolean).length;
 
-  const filteredSuggestions = filters.query.trim()
-    ? sampleSuggestions.filter((s) =>
-        s.name.toLowerCase().includes(filters.query.toLowerCase()) ||
-        s.desc.toLowerCase().includes(filters.query.toLowerCase())
-      ).slice(0, 8)
-    : sampleSuggestions.slice(0, 5);
+  const filteredSuggestions = sampleSuggestions.slice(0, filters.query.trim() ? 8 : 5);
 
   return (
-    <div className="relative bg-gradient-to-b from-blue-900 via-blue-800 to-slate-900 text-white pt-12 pb-16 px-4 sm:px-6">
+    <div className="data-hero relative bg-gradient-to-br from-[#07152f] via-[#123e82] to-[#342477] text-white pt-12 pb-16 px-4 sm:px-6 overflow-hidden">
       {/* Subtle background decorative shapes */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
         <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-blue-300 blur-3xl" />
         <div className="absolute top-1/2 -right-24 w-96 h-96 rounded-full bg-indigo-300 blur-3xl" />
       </div>
+      <div className="data-grid absolute inset-0 pointer-events-none" aria-hidden="true" />
+      <div className="data-orbit data-orbit-one" aria-hidden="true"><span /></div>
+      <div className="data-orbit data-orbit-two" aria-hidden="true"><span /></div>
 
       <div className="relative max-w-4xl mx-auto text-center">
         {/* Subtitle & Brand Tag */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-700/60 border border-blue-500/40 text-blue-100 text-xs font-medium mb-4 backdrop-blur-xs">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-700/60 border border-cyan-300/30 text-blue-100 text-xs font-medium mb-4 backdrop-blur-xs"
+        >
           <span>教員サーチ</span>
           <span aria-hidden="true">·</span>
           <span>公立学校人事アーカイブ</span>
           <span aria-hidden="true">·</span>
           <span className="text-emerald-300 font-semibold">南関東先行公開中</span>
-        </div>
+        </motion.div>
 
         {/* Main Copy */}
-        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-4 leading-tight">
+        <motion.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08, duration: 0.5 }} className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-4 leading-tight">
           「あの先生、今どこにいるんだろう？」
-        </h1>
+        </motion.h1>
 
         <p className="text-sm sm:text-base text-blue-100/90 max-w-2xl mx-auto mb-8 font-normal leading-relaxed">
           先生のお名前、学校名、地域から、公立学校の人事異動記録を安全・正確に探せます（南関東：東京・神奈川・埼玉・千葉スモールスタート公開中）。
@@ -257,6 +261,11 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
                     </span>
                   </button>
                 ))}
+                {filteredSuggestions.length === 0 && (
+                  <div className="px-4 py-5 text-center text-xs text-slate-500">
+                    候補がありません。表記を短くするか、地域名でお試しください。
+                  </div>
+                )}
               </div>
             </div>
           )}

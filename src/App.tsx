@@ -32,6 +32,7 @@ import { RecentUpdates } from './components/RecentUpdates';
 import { ReviewSystemModal } from './components/ReviewSystemModal';
 import { AboutArchiveModal } from './components/AboutArchiveModal';
 import { Footer } from './components/Footer';
+import { normalizeSearchText, scoreSchool, scoreTeacher, sortByRelevance } from './utils/search';
 
 export default function App() {
   // Archive Data States
@@ -64,31 +65,9 @@ export default function App() {
   const prefectureRef = useRef<HTMLDivElement>(null);
   const updatesRef = useRef<HTMLDivElement>(null);
 
-  // Filtered teachers
+  // 表記ゆれを吸収し、氏名・学校名を優先した関連度順で表示
   const filteredTeachers = useMemo(() => {
-    return teachers.filter((teacher) => {
-      // Query search
-      if (filters.query.trim()) {
-        const q = filters.query.trim().toLowerCase();
-        const matchesName = teacher.name.toLowerCase().includes(q);
-        const matchesKana = teacher.kana ? teacher.kana.toLowerCase().includes(q) : false;
-        const matchesSchool = teacher.currentSchoolName.toLowerCase().includes(q);
-        const matchesPosition = teacher.currentPosition.toLowerCase().includes(q);
-        const matchesTimeline = teacher.timeline.some(
-          (t) =>
-            t.schoolName.toLowerCase().includes(q) ||
-            (t.previousSchoolName && t.previousSchoolName.toLowerCase().includes(q)) ||
-            (t.note && t.note.toLowerCase().includes(q))
-        );
-        const matchesLocation =
-          teacher.prefecture.toLowerCase().includes(q) ||
-          teacher.municipality.toLowerCase().includes(q);
-
-        if (!matchesName && !matchesKana && !matchesSchool && !matchesPosition && !matchesTimeline && !matchesLocation) {
-          return false;
-        }
-      }
-
+    const filtered = teachers.filter((teacher) => {
       // Prefecture filter
       if (filters.prefecture && teacher.prefecture !== filters.prefecture) {
         return false;
@@ -97,7 +76,7 @@ export default function App() {
       // Municipality filter
       if (
         filters.municipality &&
-        !teacher.municipality.toLowerCase().includes(filters.municipality.trim().toLowerCase())
+        !normalizeSearchText(teacher.municipality).includes(normalizeSearchText(filters.municipality))
       ) {
         return false;
       }
@@ -126,33 +105,14 @@ export default function App() {
 
       return true;
     });
+    return filters.query.trim()
+      ? sortByRelevance(filtered, filters.query, scoreTeacher)
+      : filtered;
   }, [teachers, filters]);
 
   // Filtered schools
   const filteredSchools = useMemo(() => {
-    return schools.filter((school) => {
-      // Query search
-      if (filters.query.trim()) {
-        const q = filters.query.trim().toLowerCase();
-        const matchesName = school.name.toLowerCase().includes(q);
-        const matchesFormer = school.formerNames?.some((fn) => fn.toLowerCase().includes(q));
-        const matchesLocation =
-          school.prefecture.toLowerCase().includes(q) ||
-          school.municipality.toLowerCase().includes(q);
-        const matchesFounder = school.founder.toLowerCase().includes(q);
-        const matchesPersonnel = school.personnelByYear.some((py) => {
-          const matchPrincipal = py.principal?.name.toLowerCase().includes(q);
-          const matchVice = py.vicePrincipal?.name.toLowerCase().includes(q);
-          const matchIn = py.transferredIn.some((t) => t.name.toLowerCase().includes(q));
-          const matchOut = py.transferredOut.some((t) => t.name.toLowerCase().includes(q));
-          return matchPrincipal || matchVice || matchIn || matchOut;
-        });
-
-        if (!matchesName && !matchesFormer && !matchesLocation && !matchesFounder && !matchesPersonnel) {
-          return false;
-        }
-      }
-
+    const filtered = schools.filter((school) => {
       // Prefecture filter
       if (filters.prefecture && school.prefecture !== filters.prefecture) {
         return false;
@@ -161,7 +121,7 @@ export default function App() {
       // Municipality filter
       if (
         filters.municipality &&
-        !school.municipality.toLowerCase().includes(filters.municipality.trim().toLowerCase())
+        !normalizeSearchText(school.municipality).includes(normalizeSearchText(filters.municipality))
       ) {
         return false;
       }
@@ -182,6 +142,9 @@ export default function App() {
 
       return true;
     });
+    return filters.query.trim()
+      ? sortByRelevance(filtered, filters.query, scoreSchool)
+      : filtered;
   }, [schools, filters]);
 
   // Sample autocomplete suggestions
@@ -201,8 +164,20 @@ export default function App() {
         desc: `${s.prefecture} ${s.municipality} · ${s.schoolType}`,
       });
     });
-    return list;
-  }, [teachers, schools]);
+    if (!filters.query.trim()) return list.slice(0, 40);
+    const query = normalizeSearchText(filters.query);
+    return list
+      .map((item, index) => {
+        const name = normalizeSearchText(item.name);
+        const desc = normalizeSearchText(item.desc);
+        const score = name === query ? 400 : name.startsWith(query) ? 220 : name.includes(query) ? 120 : desc.includes(query) ? 40 : 0;
+        return { item, index, score };
+      })
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score || a.index - b.index)
+      .slice(0, 12)
+      .map(({ item }) => item);
+  }, [teachers, schools, filters.query]);
 
   // Handlers for selection & navigation
   const handleQuickSearch = (query: string, type: 'all' | 'teacher' | 'school' = 'all') => {

@@ -39,6 +39,9 @@ export const TeacherDetailModal: React.FC<TeacherDetailModalProps> = ({
   const homonyms = allTeachers.filter(
     (t) => t.name === teacher.name && t.id !== teacher.id
   );
+  const relatedTeachers = allTeachers
+    .filter((candidate) => candidate.id !== teacher.id && candidate.currentSchoolId === teacher.currentSchoolId)
+    .slice(0, 6);
 
   const sortedTimeline = [...teacher.timeline].sort((a, b) =>
     orderDesc ? b.fiscalYear - a.fiscalYear : a.fiscalYear - b.fiscalYear
@@ -254,6 +257,29 @@ export const TeacherDetailModal: React.FC<TeacherDetailModalProps> = ({
               );
             })}
           </div>
+
+          {relatedTeachers.length > 0 && (
+            <section className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50/60 p-4" aria-labelledby="related-teachers-title">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <div>
+                  <h3 id="related-teachers-title" className="text-sm font-semibold text-slate-800">同じ学校の関連記録</h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">{teacher.currentSchoolName}の最新確認記録から表示</p>
+                </div>
+                <span className="text-[10px] font-bold text-blue-700 bg-white/80 border border-blue-200 rounded-full px-2 py-1">RELATED</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {relatedTeachers.map((candidate) => (
+                  <button key={candidate.id} onClick={() => onSelectTeacherById(candidate.id)} className="group flex items-center justify-between gap-2 rounded-lg border border-white/80 bg-white/80 p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow">
+                    <span>
+                      <span className="block text-sm font-semibold text-blue-700 group-hover:underline">{candidate.name}</span>
+                      <span className="block text-[11px] text-slate-500 mt-0.5">{candidate.currentPosition} · {candidate.latestFiscalYear}年度</span>
+                    </span>
+                    <ArrowUpRight className="w-4 h-4 text-blue-400" />
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Privacy & Public Notice */}
           <div className="p-4 bg-slate-100/70 rounded-xl text-xs text-slate-500 leading-relaxed border border-slate-200">
